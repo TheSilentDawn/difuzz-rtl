@@ -15,6 +15,9 @@ COCOTB_HDL_TIMEUNIT=1us
 COCOTB_HDL_TIMEPRECISION=1us
 
 OUT ?= output
+NUM_ITER ?= 1
+TEMPLATE ?= Template
+RECORD ?= 0
 
 ifdef DEBUG
     PRINT=$(DEBUG)
@@ -25,10 +28,8 @@ endif
 
 ifdef MULTICORE
     MULTI=-DMULTICORE
-    PLUSARGS_OUT=+OUT=$(OUT)
 else
     MULTI=
-    PLUSARGS_OUT=
 endif
 
 ifeq ($(VFILE), RocketTile_VHarness)
@@ -41,7 +42,7 @@ PRINTF_COND ?= 0
 STOP_COND ?= 0
 
 COMPILE_ARGS=$(MULTI) $(INCLUDE) -DPRINTF_COND=$(PRINTF_COND) -DSTOP_COND=$(STOP_COND) -Wno-PINMISSING
-PLUSARGS=+DEBUG=$(PRINT) $(PLUSARGS_OUT)
+PLUSARGS=+TOPLEVEL=$(TOPLEVEL) +NUM_ITER=$(NUM_ITER) +TEMPLATE=$(TEMPLATE) +OUT=$(OUT) +RECORD=$(RECORD) +DEBUG=$(PRINT)
 
 MODULE=DifuzzRTL
 
@@ -49,5 +50,8 @@ CUSTOM_SIM_DEPS=$(CWD)/Makefile
 
 include $(shell cocotb-config --makefiles)/Makefile.inc
 include $(shell cocotb-config --makefiles)/Makefile.sim
+
+# Override cocotb's default c++11 - Verilator 5.x requires c++14+
+SIM_BUILD_FLAGS := $(filter-out -std=c++11,$(SIM_BUILD_FLAGS)) -std=c++17
 
 sim: $(MODULE).py

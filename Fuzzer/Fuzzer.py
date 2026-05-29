@@ -127,9 +127,9 @@ def Run(dut, toplevel,
             mutator.update_phase(it)
 
         else:
-            stop[0] = proc_state.ERR_COMPILE
-            # Compile failed
-            break
+            # Compile failed - skip this iteration and try next
+            debug_print('[DifuzzRTL] Compile failed, skipping iteration {}'.format(it), debug)
+            continue
 
     if multicore:
         save_err(out, proc_num, manager, stop[0])

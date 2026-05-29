@@ -81,10 +81,12 @@ class rvRTLhost():
     def reset(self, clock, metaReset, reset, timer=5):
         clkedge = RisingEdge(clock)
 
-        metaReset <= 1
+        if metaReset is not None:
+            metaReset <= 1
         for i in range(timer):
             yield clkedge
-        metaReset <= 0
+        if metaReset is not None:
+            metaReset <= 0
         reset <= 1
         for i in range(timer):
             yield clkedge
@@ -161,7 +163,8 @@ class rvRTLhost():
         clk_driver = cocotb.fork(self.clock_gen(clk))
         clkedge = RisingEdge(clk)
 
-        yield self.reset(clk, self.dut.metaReset, self.dut.reset)
+        metaReset = getattr(self.dut, 'metaReset', None)
+        yield self.reset(clk, metaReset, self.dut.reset)
 
         self.adapter.start(memory, ints)
         for i in range(max_cycles):

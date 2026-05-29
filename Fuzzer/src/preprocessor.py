@@ -26,7 +26,7 @@ class rvPreProcessor():
     def get_symbols(self, elf_name, sym_name):
         # symbol_file = self.base + '/.input.symbols'
         fd = open(sym_name, 'w')
-        subprocess.call([ 'nm', elf_name], stdout=fd )
+        subprocess.call([ 'riscv64-unknown-elf-nm', elf_name], stdout=fd )
         fd.close()
 
         symbols = {}
@@ -35,8 +35,11 @@ class rvPreProcessor():
         fd.close()
 
         for line in lines:
-            symbol = line.split(' ')[2]
-            addr = line.split(' ')[0]
+            parts = line.split(' ')
+            addr = parts[0].strip()
+            if not addr:
+                continue
+            symbol = parts[2]
             symbols[symbol[:-1]] = int(addr, 16)
 
         return symbols
@@ -72,7 +75,8 @@ class rvPreProcessor():
             extra_args = DINTR + [ '-DENTROPY=0x{:08x}'.format(rand), '-std=gnu99', '-O2',
                                    '-I', '{}/include/v'.format(self.template),
                                    '{}/include/v/string.c'.format(self.template),
-                                   '{}/include/v/vm.c'.format(self.template) ]
+                                   '{}/include/v/vm.c'.format(self.template),
+                                   '{}/include/v/clear_cache_stub.c'.format(self.template) ]
 
         si_name = self.base + '/.input_{}.si'.format(self.proc_num)
         asm_name = self.base + '/.input_{}.S'.format(self.proc_num)

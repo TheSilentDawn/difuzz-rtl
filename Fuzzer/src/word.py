@@ -115,7 +115,11 @@ def word_ret(opcode, syntax, xregs, fregs, imms, symbols):
     tpe = CF_RET
     if syntax == 'mret': epc = 'mepc'
     elif syntax == 'sret': epc = 'sepc'
-    else: epc = 'uepc'
+    else: epc = 'mepc'  # uret not supported by clang; fall back to mepc
+
+    # uret is not supported by modern RISC-V toolchains
+    if syntax == 'uret':
+        syntax = 'mret'
 
     insts = [ 'la xreg0, symbol',
               'csrrw zero, {}, xreg0'.format(epc),

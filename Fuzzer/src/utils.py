@@ -12,7 +12,7 @@ from src.signature_checker import sigChecker
 from src.mutator import simInput, rvMutator
 from src.multicore_manager import proc_state, procManager
 
-ISA_TIME_LIMIT = 1
+ISA_TIME_LIMIT = 30
 
 def save_err(out: str, proc_num: int, manager: procManager, stop_code: int):
 
